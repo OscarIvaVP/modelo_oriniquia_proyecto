@@ -1,0 +1,252 @@
+---
+title: "OWF Training Session"
+title-block-banner: '#850004' 
+title-block-banner-color: white
+date: 05-06-2025
+author: Baptiste Francois -- UMass
+format:
+  html:
+    theme: lux
+    toc: true
+    toc-depth: 2
+    toc-expand: 2
+    self-contained: True
+    code-fold: true
+jupyter: python3
+---
+
+# Overview
+This directory contains material prepared by UMass to facilitate training sessions with Unillanos staff focused on use of the Orinoquia Water Futures (OWF), with initial emphasis on users gaining familiarity with the underlying software package [Pywr](https://pywr.github.io/pywr/index.html), by [Tomlinson, et al., 2020](https://doi.org/10.1016/j.envsoft.2020.104635).
+
+Refer to the presentation slides under title '1_training_05-12-2025.pptx` stored [here](https://github.com/BaptisteFrancois/Orinoquia_Water_Futures/blob/Training/UMass_training_01/presentation/1_training_05-12-2025.pptx) for detailed information shared during the training session. The recorded training sessions are also available [here-- To be updated once the session is completed and a link available](). 
+
+
+# Prerequisites
+
+At this point it is assumed that users have:
+- Forked the repository to their own GitHub account
+- You should be able to update the repo by clicking on the `Sync fork` button in the top right corner of the page. This will update your forked repository with any changes made to the original repository. If you are not familiar with this process, please refer to the following link: [GitHub - Sync a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork)
+- Cloned the repository to their local machine using the command line interface (CLI) or GitHub Desktop application. If you are not familiar with this process, please refer to the following link: [GitHub - Fork and Clone a repo](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
+
+- Cloned and initiated this branch using appropriate sequence of command-line arguments, such as:
+```
+    git clone --branch Training --single-branch 'the link to the forked repository on your github account' Training
+    cd Training
+    git status
+```
+The link to your Git repository can easily be accessed by clicking on `Code` (big green push button), then by selecting HTTPS and clicking on the `copy url to clipboard` icon. For instance mine is: https://github.com/BaptisteFrancois/Orinoquia_Water_Futures.git
+
+
+
+::: {.callout-tip}
+### Note
+If you need to learn some basins of Git, please refer to the following link: [Introduction to GitHub](https://github.com/skills/introduction-to-github?tab=readme-ov-file)
+
+I personnaly found the video tutorial by [Nick White](https://www.youtube.com/watch?v=mJ-qvsxPHpY&t=604s&ab_channel=NickWhite) very useful to understand the basics of Git and GitHub. The video is about 20 minute long, but it is worth it. The tone is pretty casual but the content is very clear and well explained. The video is in english and subtitles are available in english. There might be good resources in spanish as well, but I am afraid I do not know them. If you find some, please share them with the group.
+:::
+
+
+::: {.callout-tip}
+### Alternate
+Instead of cloning the branch of the repository, the contents of the branch can also be downloaded as a zip file (by clicking on `Download ZIP` available from the options after having clicked on the big green button `Code`). Next, the user will need to manually link their local copy of the repository to their remote repository on Github. This can be done with the following command (note that the URL may need to be updated to match the current version of the repository):
+```
+git remote add upstream `link to your remote repository`
+```
+:::
+
+# Setup
+The following steps follow along with the exercises presented in the presentation slides:
+
+1. Build the required Python environment:
+    -  Open and review the environment specification file named `owf_env.yml`. The file is located in the `env` directory in the root directory of the branch repository. This file contains a list of all the packages and their versions that are required to run the model. The environment is built using the `conda` package manager, which is included with Anaconda or Miniconda installations. If you do not have Anaconda or Miniconda installed, please refer to the following link: [Anaconda installation](https://docs.anaconda.com/anaconda/install/index.html) or [Miniconda installation](https://docs.conda.io/en/latest/miniconda.html).
+    -  Run the following command from the command line to build the environment from the YML file (note this may take 5-10 minutes to complete depending on your internet connection):
+    ```
+    conda env create --file owf_env.yml
+    ```
+2. Run the following sequence of commands to verify that the environment and model files are properly functioning on your system:
+
+    ```
+    conda activate owf_env
+    cd scripts
+    python WaterTown_Model.py
+    ```
+    Expected output on the command line is the printed line: "Water Town script run was successful."
+
+# Introducing the baseline scenario
+For this section, we'll first need to locate the `water_town_scenario_1.json` file in the `models/model_json` directory. This is a baseline scenario (i.e., scenario 1) created to demonstrate the standard elements of model specification files in `Pywr`. Note the top-level elements (keys) of the file are:
+
+-  `metadata` - Provides descriptive content about the model defined in the file
+-  `timestepper` - Defines the simulation period and time step for the model
+-  `nodes` - Define the node types and attributes comprising the water system
+-  `edges` - Define the connections between nodes in the water system
+-  `parameters` - Define parameters used to link node attributes to input datasets or variable properties of the system computed during execution
+-  `recorders` -  Define the model outputs
+
+The baseline scenario was created from the `water_town_template.json` file in the `models/Parents` directory. Once this training has been completed, it is suggested to start from scratch using this template file and to try to re-create the baseline scenario.
+
+## Comprehension questions
+The following questions aim to emphasize comprehension of the overall model specification structure in `water_town_scenario_1.json` and related files:
+
+1. When you modify the model specification, in which section should you update the author of the model?
+2. Examine now the `timestepper` section of the model specification. This section defines the simulation period and time step for the model. Answer the following questions:
+    -  What is the simulation period (start and stop) for this model?
+    -  What is the unit of time stepping in this model?
+3. Examine the `nodes` and `edges` section of the model specification. How many nodes are there? How many edges? Confirm your understanding of this section by making a sketch of the network nodes and the connections between them. 
+    -  Which two nodes are the final points of discharge in this model?
+    -  Which nodes connect the reservoir storage to the final discharge nodes?
+    -  What do you think the purpose of the `little_loch_valve_release` node is? For guidance, refer to the Pywr [API documentation](https://pywr.github.io/pywr/api/generated/pywr.nodes.AggregatedNode.html#pywr.nodes.AggregatedNode) on the stated node type `aggregatednode`. What is the total maximum amount of flow allowed in any time step to both the river and the town?
+    -  Between the nodes `water_town` and `little_loch_ifr`, which one get served first?
+    -  What is the maximum flow allowed to the town in any time step?
+    -  What is the purpose of the node `little_loch_spill`? Describe a situation during which this node would be used.
+    -  What is the maximum flow allowed to the river in any time step?
+4. Refer now to the `parameters` section of the model specification:
+    -  Which parameter specifies the flow from the headwater catchment to the reservoir?
+    -  What type of parameter is this?
+    -  What is the value and unit of flow allotted to the river in April of any simulated year?
+5. We'll now look at the representation for WaterTown demand. In the baseline scenario file, the effective demand is defined as the product of the demand constant and a delivery factor.
+    -  What is the name, value and unit of the parameter defining the demand constant?
+6. The delivery factor is a simple concept but its representation in the model is fairly complex. Refer again to the `parameters` section of the model specification. What is the stated type of the delivery factor parameter? 
+7. Open the `WaterTown_Model.py` script and look at the `class` definition for this type. Don't worry about the implementation details - classes are a fundamental but fairly advanced concept in Python - the important thing now is to understand how the value of the `delivery_factor` variable is updated during simulation. Look at the section of code that initializes the class, starting with `def __init__(self, model):`; what is the default value of the `delivery_factor` attribute?
+8. Now look at the section of code in the class definition that begins with `def value(self, timestep, scenario_index):` - this is referred to as a class *method* - essentially it's just a function that any instance of the class can implement on itself. The purpose of the `value` method is to update the value of the delivery factor during simulation. It does so by examining the current storage in the reservoir and comparing this to different threshold storage values. The python language is touted as being *highly readable* and so easy to learn - let's test this out. Examine the control flow (if statements) in this section of code, and try to answer the following questions: 
+
+    -  What are the three values that the delivery factor can take?
+    -  Under what conditions does the delivery factor take the value of 0.25?
+9. As discussed above, the `recorders` section defines the model outputs. Each element in the `recorders` section (i.e., each recorder) is defined as a recorder name with properties for the `type` of recorder and to which `node` (or `parameter`) the recorder is linked. What three types of recorders are used in the baseline scenario? 
+10. It's important to know where to find and how to read API documentation. Choose one of the recorder types identified above and look up its entry in the Pywr [API documentation](https://pywr.github.io/pywr/api/pywr.html). Summarize what the recorder does.
+11. When initializing your local branch in the setup section of these instructions, you ran the model script for the default scenario (scenario 1). This generated an output file in the results folder. Open the file corresponding to the baseline scenario (1) and answer the following questions:
+    -  The output file is a CSV with column names given for each recorder specified in the `recorders` section of the model specification file.  
+        -  True or False - the column name for each recorder in the output file comes from the `node` property of the recorder.
+        -  True or False - the column name for each recorder in the output file comes from the name the recorder is given when it is declared in the `recorders` section.
+12. Examine the output file discussed above. What is the simulation period (start and stop)? Does this match the simulation period specified in the model specification?
+
+
+# Modifying the baseline scenario
+A good way to understand how to build *Pywr* models is to modify existing ones. The following example scenarios require slight modification of the existing baseline (Scenario 1). For each new scenario, copy the baseline (or a subsequent) model specification file and increment the scenario index in the file name to match the new scenario. This scenario index is used in the modeling script to identify which model specification file is used.
+
+## Scenario 2
+Modify (as needed) the baseline scenario (`water_town_scenario_1.json`) to the following conditions:
+
+-  Little Loch (LL) Storage: 200,000 AF (initial storage: 180,00AF)
+-  **10% reduction in inflow to Little Loch**
+-  Daily Water Town demand: 450 AFD
+-  Deliveries cut by half if storage < 50% max storage
+-  Deliveries cut by 75% if storage < 25% max storage
+
+Save your modification in the `models/model_json` directory using `water_town_scenario_2.json` as filename.
+
+Run the new scenario from the command line (in the script directory) as follows:
+```
+python WaterTown_Model.py --scenario scenario_2
+```
+
+::: {.callout-tip}
+### Tip Scenario 2
+Two options are available to modify the inflow to Little Loch:
+-  You can create an aggregated parameter that multiplies the inflow to Little Loch by 0.9 (10% reduction). 
+-  You can read a different inflow file that has been modified to reflect the 10% reduction (note that the `data/FLOW/FLOW_WATER_TOWN_202010-207009.csv` file already contains a scenario with 10% reduction). To use this scenario, the name of the releveant column must be provided in the `column` attribute of the `infow_to_little_loch_AFD` parameter.
+
+It is advised to try both options to understand how the model works. The first option is the most straightforward. However, the second option becomes more straightforward when inflow sceanrios have been created by another member and reflect the effect of change in climate (e.g., precipitation, temperature) and not just a simple reduction in flow by a fixed percentage.
+:::
+
+
+Run the plotting script to compare your simulation and the existing solution for this scenario:
+```
+python plot_water_town_results.py --scenario scenario_2
+```
+
+## Scenario 3
+Modify (as needed) the baseline scenario (`water_town_scenario_1.json`) to the following conditions:
+
+-  Little Loch (LL) Storage: 200,000 AF (initial storage: 180,00AF)
+-  **20% reduction in inflow to Little Loch**
+-  Daily Water Town demand: 450 AFD
+-  Deliveries cut by half if storage < 50% max storage
+-  Deliveries cut by 75% if storage < 25% max storage
+
+Save your modification in the `models/model_json` directory using `water_town_scenario_3.json` as filename.
+
+Run the new scenario from the command line (in the script directory) as follows:
+```
+python WaterTown_Model.py --scenario scenario_3
+```
+
+Run the plotting script to compare your simulation and the existing solution for this scenario:
+```
+python plot_water_town_results.py --scenario scenario_3
+```
+
+::: {.callout-tip}
+### Tip Scenario 3
+Once Scenario 2 is completed, this should be straightforward. 
+:::
+
+## Scenario 4
+Modify (as needed) the baseline scenario (`water_town_scenario_1.json`) to the following conditions:
+
+-  **Little_Loch (LL) Storage: 250,000 AF (initial storage: 180,00AF)**
+-  Current climate Little_Loch inflow
+-  Daily Water Town demand: 450 AFD
+-  Deliveries cut by half if storage < 50% max storage
+-  Deliveries cut by 75% if storage < 25% max storage
+
+Save your modification in the `models/model_json` directory using `water_town_scenario_4.json` as filename.
+
+Run the new scenario from the command line (in the script directory) as follows:
+```
+python WaterTown_Model.py --scenario scenario_4
+```
+
+Run the plotting script to compare your simulation and the existing solution for this scenario:
+```
+python plot_water_town_results.py --scenario scenario_4
+```
+
+## Scenario 5
+Modify (as needed) the baseline scenario (`water_town_scenario_1.json`) to the following conditions:
+
+-  **Little_Loch (LL) Storage: 250,000 AF (initial storage: 180,00AF)**
+-  Current climate Little_Loch inflow
+-  **Daily Water Town demand: 550 AFD**
+-  Deliveries cut by half if storage < 50% max storage
+-  Deliveries cut by 75% if storage < 25% max storage
+
+Save your modification in the `models/model_json` directory using `water_town_scenario_5.json` as filename.
+
+Run the new scenario from the command line (in the script directory) as follows:
+```
+python WaterTown_Model.py --scenario scenario_5
+``` 
+
+Run the plotting script to compare your simulation and the existing solution for this scenario:
+```
+python plot_water_town_results.py --scenario scenario_5
+```
+
+## Scenario 6
+Modify (as needed) the baseline scenario (`water_town_scenario_1.json`) to the following conditions:
+
+-  **Little_Loch (LL) Storage: 250,000 AF (initial storage: 180,00AF)**
+-  Current climate Little_Loch inflow
+-  **Daily Water Town demand: 550 AFD**
+-  Deliveries but by half if storage < **35%** max storage
+-  Deliveries cut by 75% if storage < **15%** max storage
+
+Save your modification in the `models/model_json` directory using `water_town_scenario_6.json` as filename.
+
+::: {.callout-tip}
+### Tip Scenario 6
+To complete this scenario, you might need to modify the python class `delivery_factor` from the `WaterTown_Model.py` script.
+To prevent confusion, it is recommended to create a copy of the `WaterTown_Model.py` script and rename it to `WaterTown_Model_scenario_6.py` before making any changes. This will allow you to keep the original script intact for future reference.
+:::
+
+
+Run the new scenario from the command line (in the script directory) as follows:
+```
+python WaterTown_Model.py --scenario scenario_6
+```
+
+Run the plotting script to compare your simulation and the existing solution for this scenario:
+```
+python plot_water_town_results.py --scenario scenario_6
+```
+    

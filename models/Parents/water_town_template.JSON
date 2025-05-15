@@ -1,0 +1,34 @@
+{
+    "metadata": {
+        "title": "water_town_template",
+        "description": "A template to help trainees to create their very first Pywr model",
+        "author": "Baptiste Francois - bfrancois@umass.edu",
+        "minimum_version": "1.17.1"
+    },
+    "timestepper": {
+        "start": "2021-07-01",
+        "end": "2070-06-30",
+        "timestep": 1
+    },
+    "nodes": [
+        {
+            "name": "",
+            "type": "",
+        },
+        {
+            "name": "",
+            "type": ""
+        },
+
+    ],
+    "edges": [       
+        [ , ],
+        [ , ],
+    ],
+    "parameters":{
+        
+    },
+    "recorders": {
+
+    }
+}

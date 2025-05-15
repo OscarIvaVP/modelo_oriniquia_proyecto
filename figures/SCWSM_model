@@ -1,0 +1,16 @@
+digraph system {
+	subgraph cluster_water_town_scenario_1 {
+		graph [color="#f0f0f0" style=filled]
+		catchment_little_loch [label="catchment little loch" color=black fillcolor=lightblue fontcolor=black fontsize=14 ratio=1 shape=ellipse style=filled]
+		little_loch [label="Little Loch" color=black fillcolor=blue fontcolor=white fontsize=14 ratio=1 shape=rect style=filled]
+		catchment_little_loch -> little_loch [color=black]
+		little_loch_ifr [label="little loch ifr" color=black fillcolor=lightgray fontcolor=black fontsize=14 ratio=1 shape=ellipse style=filled]
+		little_loch -> little_loch_ifr [color=black]
+		little_loch_to_diversion_to_water_town [label="little loch to diversion to water town" color=black fillcolor=lightgray fontcolor=black fontsize=14 ratio=1 shape=ellipse style=filled]
+		little_loch -> little_loch_to_diversion_to_water_town [color=black]
+		river_downstream [label="river downstream" color=black fillcolor=pink fontcolor=black fontsize=14 ratio=1 shape=ellipse style=filled]
+		little_loch_ifr -> river_downstream [color=black]
+		water_town [label="water town" color=black fillcolor=pink fontcolor=black fontsize=14 ratio=1 shape=ellipse style=filled]
+		little_loch_to_diversion_to_water_town -> water_town [color=black]
+	}
+}

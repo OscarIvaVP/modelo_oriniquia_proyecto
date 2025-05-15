@@ -1,0 +1,116 @@
+{
+    "metadata": {
+        "title": "water_town_template",
+        "description": "Initial template for the howe-work assignment given to trainees on 12/19/2023",
+        "author": "Baptiste Francois bfrancois@umass.edu",
+        "minimum_version": "1.17.1"
+    },
+    "timestepper": {
+        "start": "2021-07-01",
+        "end": "2070-06-30",
+        "timestep": "1D"
+    },
+    "nodes": [
+        {
+            "name": "catchment_little_loch",
+            "type": "catchment",
+            "flow": "infow_to_little_loch_AFD"
+        },
+        {
+            "name": "little_loch",
+            "type": "storage",
+            "max_volume": 200000,
+            "min_volume": 0,
+            "initial_volume": 180000,
+            "cost": -1
+        },
+        {   
+            "name": "little_loch_ifr",
+            "type": "piecewiselink",
+            "nsteps": 2,
+            "max_flows": ["little_loch_IFR_AFD", null],
+            "costs": [-10, 100]
+        },
+        {       
+            "name": "little_loch_to_diversion_to_water_town",
+            "type": "link"
+        },
+        {
+            "name": "little_loch_valve_release",
+            "type": "aggregatednode",
+            "nodes": ["little_loch_ifr", "little_loch_to_diversion_to_water_town"],
+            "max_flow": "little_loch_valve_capacity_AFD"
+        },
+        {
+            "name": "little_loch_spill",
+            "type": "link",
+            "cost": 10
+        },
+        {
+            "name": "water_town",
+            "type": "output",
+            "max_flow": "effective_water_town_demand_AFD",
+            "cost": -5
+        },
+        {
+            "name": "river_downstream",
+            "type": "output"
+        }
+    ],
+    "edges": [       
+        ["catchment_little_loch" , "little_loch"],
+        ["little_loch" , "little_loch_ifr"],
+        ["little_loch", "little_loch_to_diversion_to_water_town"],
+        ["little_loch", "little_loch_spill"],
+        ["little_loch_to_diversion_to_water_town", "water_town"],
+        ["little_loch_ifr", "river_downstream"],
+        ["little_loch_spill", "river_downstream"]
+    ],
+    "parameters":{
+        "infow_to_little_loch_AFD": {
+            "type": "dataframe",
+            "url": "../../data/FLOW/FLOW_WATER_TOWN_202010-207009.csv",
+            "index_col": "Date",
+            "column": "inflow_little_loch_AFD_current",
+            "parse_dates": true
+        },
+        "little_loch_IFR_AFD": {
+            "type": "monthlyprofile",
+            "values": [100, 100, 100, 200, 400, 200, 200, 100, 100, 100, 100, 100]
+        },
+        "little_loch_valve_capacity_AFD": {
+            "type": "constant",
+            "value": 1500
+        },
+        "effective_water_town_demand_AFD": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": ["water_town_demand_AFD", "delivery_factor"]
+        },
+        "water_town_demand_AFD": {
+            "type": "constant",
+            "value": 450    
+        },
+        "delivery_factor": {
+            "type": "DeliveryFactor"
+        }
+    },
+    "recorders": {
+        "WATER_TOWN_DELIVERIES": {
+            "type": "NumpyArrayNodeRecorder",
+            "node": "water_town"   
+        },
+        "LITTLE_LOCH_STORAGE": {
+            "type": "NumpyArrayStorageRecorder",
+            "node": "little_loch"
+        },
+        "RIVER_OUTLET": {
+            "type": "NumpyArrayNodeRecorder",
+            "node": "river_downstream"
+        },
+        "DELIVERY_FACTOR": {
+            "type": "NumpyArrayParameterRecorder",
+            "parameter": "delivery_factor"
+        }
+    }
+}
